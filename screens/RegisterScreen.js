@@ -3,6 +3,7 @@ import { React, useLayoutEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Button, Input, Text } from "react-native-elements";
 
+
 const RegisterScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,8 +14,14 @@ const RegisterScreen = ({ navigation }) => {
     navigation.setOptions({
       headerBackTitle: "Back to  Login",
     });
-  });
-  const register = () => {};
+  }, [navigation]);
+
+  const register = () => {
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((authUser) => {})
+      .catch((error) => alert(error.message));
+  };
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <StatusBar style="light" />
