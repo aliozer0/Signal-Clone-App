@@ -2,7 +2,7 @@ import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
 import { React, useLayoutEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Button, Input, Text } from "react-native-elements";
-
+import { auth } from "../firebase";
 
 const RegisterScreen = ({ navigation }) => {
   const [name, setName] = useState("");
@@ -19,7 +19,14 @@ const RegisterScreen = ({ navigation }) => {
   const register = () => {
     auth
       .createUserWithEmailAndPassword(email, password)
-      .then((authUser) => {})
+      .then((authUser) => {
+        authUser.user.updateProfile({
+          display: name,
+          photoURL:
+            imageurl ||
+            "https://cencup.com/wp-content/2019/07/avatar-placeholder.png",
+        });
+      })
       .catch((error) => alert(error.message));
   };
   return (
@@ -35,28 +42,28 @@ const RegisterScreen = ({ navigation }) => {
           autoFocus
           type="text"
           value={name}
-          onChangeText={() => setName(text)}
+          onChangeText={(text) => setName(text)}
         />
         <Input
           placeholder="Email"
           autoFocus
           type="email"
           value={email}
-          onChangeText={() => setEmail(text)}
+          onChangeText={(text) => setEmail(text)}
         />
         <Input
           placeholder="Password"
           type="password"
           secureTextEntry
           value={password}
-          onChangeText={() => setPassword(text)}
+          onChangeText={(text) => setPassword(text)}
         />
         <Input
           placeholder="Profile Picture URL (optional)"
           autoFocus
           type="text"
           value={imageurl}
-          onChangeText={() => setImageUrl(text)}
+          onChangeText={(text) => setImageUrl(text)}
           onSubmitEditing={register}
         />
       </View>

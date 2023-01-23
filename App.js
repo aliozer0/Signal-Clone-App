@@ -3,8 +3,10 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
+import HomeScreen from "./screens/HomeScreen";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
 const Stack = createNativeStackNavigator();
 const globalScreenoptions = {
   headerStyle: { backgroundColor: "#2C6BED" },
@@ -15,9 +17,13 @@ const globalScreenoptions = {
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={globalScreenoptions}>
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={globalScreenoptions}
+      >
         <Stack.Screen name="login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
