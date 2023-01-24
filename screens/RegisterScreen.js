@@ -24,7 +24,7 @@ const RegisterScreen = ({ navigation }) => {
           display: name,
           photoURL:
             imageurl ||
-            "https://cencup.com/wp-content/2019/07/avatar-placeholder.png",
+            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
         });
       })
       .catch((error) => alert(error.message));

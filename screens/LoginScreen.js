@@ -7,18 +7,24 @@ import { auth } from "../firebase";
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       console.log(authUser);
+
       if (authUser) {
-        navigation.replace("Home");
+        navigation.navigate("Home");
       }
     });
 
     return unsubscribe;
   }, []);
 
-  const SignIn = () => {};
+  const SignIn = () => {
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .catch((error) => alert(error));
+  };
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
@@ -44,6 +50,7 @@ const LoginScreen = ({ navigation }) => {
           type="password"
           value={password}
           onChangeText={(text) => setPassword(text)}
+          onSubmitEditing={SignIn}
         />
       </View>
       <Button containerStyle={styles.button} onPress={SignIn} title="Login" />
