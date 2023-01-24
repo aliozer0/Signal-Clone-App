@@ -5,10 +5,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useLayoutEffect } from "react";
+import React, { useLayoutEffect } from "react";
 import { SafeAreaView } from "react-native";
 import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
-
 import CustomListItem from "./components/CustomListItem";
 import { Avatar } from "react-native-elements";
 import { auth, db } from "../firebase";
@@ -26,6 +25,7 @@ const HomeScreen = ({ navigation }) => {
       headerStyle: { backgroundColor: "#fff" },
       headerTitleStyle: { color: "black" },
       headerTintColor: "black",
+
       headerLeft: () => (
         <View style={{ marginLeft: 10 }}>
           <TouchableOpacity onPress={signOutUser} activeOpacity={0.5}>
@@ -33,7 +33,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       ),
-      headerRigth: () => (
+      headerRight: () => (
         <View
           style={{
             flexDirection: "row",
@@ -45,13 +45,18 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity activeOpacity={0.5}>
             <AntDesign name="camerao" size={24} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.5}>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => {
+              navigation.navigate("AddChat");
+            }}
+          >
             <SimpleLineIcons name="pencil" size={24} color="black" />
           </TouchableOpacity>
         </View>
       ),
     });
-  }, []);
+  }, [navigation]);
 
   return (
     <SafeAreaView>
