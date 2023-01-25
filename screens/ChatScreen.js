@@ -9,16 +9,19 @@ import {
   View,
   ScrollView,
   TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import React, { useLayoutEffect, useState } from "react";
 import { Avatar } from "react-native-elements";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import firebase from "firebase/compat/app";
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 
 const ChatScreen = ({ navigation, route }) => {
   const [input, setInput] = useState("");
+  const [messages, setMessages] = useState("");
 
-  const sendMessage = () => {};
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "Chat",
@@ -69,6 +72,37 @@ const ChatScreen = ({ navigation, route }) => {
       ),
     });
   }, [navigation]);
+
+  const sendMessage = () => {
+    Keyboard.dismiss();
+
+    db.collection("chats").doc(route.params.id).collection("messages").add({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      message: input,
+      email: auth.currentUser.email,
+      displayName: auth.currentUser.displayName,
+      photoURL: auth.currentUser.photoURL,
+    });
+    setInput("");
+  };
+
+  useLayoutEffect(() => {
+    const unsubscribe = db
+      .collection("chats")
+      .doc(route.params.id)
+      .collection("messages")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) =>
+        setMessages(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        )
+      );
+    return unsubscribe;
+  }, [route]);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBar style="light" />
@@ -77,22 +111,44 @@ const ChatScreen = ({ navigation, route }) => {
         style={styles.container}
         keyboardVerticalOffset={90}
       >
-        <>
-          <ScrollView></ScrollView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <>
+            <ScrollView>
+              {messages.map(({ id, data }) =>
+                data.email === auth.currentUser.email ? (
+                  <View key={id} style={styles.reciever}>
+                    <Avatar
+                      position="absolute"
+                      size={30}
+                      rounded
+                      source={{ uri: data.photoURL }}
+                    />
+                    <Text style={styles.recieverText}>{data.message}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.sender}>
+                    <Avatar />
+                    <Text style={styles.sendText}>{data.message}</Text>
+                  </View>
+                )
+              )}
+            </ScrollView>
 
-          <View style={styles.footer}>
-            <TextInput
-              placeholder="Signal Message"
-              style={styles.textinput}
-              value={input}
-              onChangeText={(text) => setInput(text)}
-            />
+            <View style={styles.footer}>
+              <TextInput
+                placeholder="Signal Message"
+                style={styles.textinput}
+                value={input}
+                onChangeText={(text) => setInput(text)}
+                onSubmitEditing={sendMessage}
+              />
 
-            <TouchableOpacity activeOpacity={0.5} onPress={sendMessage}>
-              <Ionicons name="send" size={24} color="#2B68E6" />
-            </TouchableOpacity>
-          </View>
-        </>
+              <TouchableOpacity activeOpacity={0.5} onPress={sendMessage}>
+                <Ionicons name="send" size={24} color="#2B68E6" />
+              </TouchableOpacity>
+            </View>
+          </>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -102,6 +158,25 @@ export default ChatScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  reciever: {
+    padding: 15,
+    backgroundColor: "#ECECEC",
+    alignSelf: "flex-end",
+    marginBottom: 20,
+    marginRight: 15,
+    maxWidth: "80%",
+    position: "relative",
+  },
+
+  sender: {
+    padding: 15,
+    backgroundColor: "#2B68E6",
+    alignSelf: "flex-start",
+    borderRadius: 20,
+    margin: 15,
+    maxWidth: "80%",
+    position: "relative",
+  },
   footer: {
     flexDirection: "row",
     alignItems: "center",
@@ -119,5 +194,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: "grey",
     borderRadius: 30,
+    marginRight: 10,
   },
+  recieverText: {},
+  sendText: {},
 });
