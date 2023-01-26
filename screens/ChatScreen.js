@@ -20,7 +20,7 @@ import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 
 const ChatScreen = ({ navigation, route }) => {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState("");
+  const [messages, setMessages] = useState([]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -36,7 +36,9 @@ const ChatScreen = ({ navigation, route }) => {
           <Avatar
             rounded
             source={{
-              uri: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+              uri:
+                messages[0]?.data.photoURL ||
+                "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
             }}
           />
           <Text style={{ color: "white", marginLeft: 10, fontWeight: "700" }}>
@@ -71,7 +73,7 @@ const ChatScreen = ({ navigation, route }) => {
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, messages]);
 
   const sendMessage = () => {
     Keyboard.dismiss();
@@ -91,7 +93,7 @@ const ChatScreen = ({ navigation, route }) => {
       .collection("chats")
       .doc(route.params.id)
       .collection("messages")
-      .orderBy("timestamp", "desc")
+      .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) =>
         setMessages(
           snapshot.docs.map((doc) => ({
@@ -113,22 +115,44 @@ const ChatScreen = ({ navigation, route }) => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <>
-            <ScrollView>
+            <ScrollView contentContainerStyle={{ paddingTop: 15 }}>
               {messages.map(({ id, data }) =>
                 data.email === auth.currentUser.email ? (
                   <View key={id} style={styles.reciever}>
                     <Avatar
                       position="absolute"
-                      size={30}
                       rounded
+                      // Web
+                      containerStyle={{
+                        bottom: -15,
+                        right: -5,
+                        position: "absolute",
+                      }}
                       source={{ uri: data.photoURL }}
+                      bottom={-15}
+                      right={-5}
+                      size={30}
                     />
                     <Text style={styles.recieverText}>{data.message}</Text>
                   </View>
                 ) : (
-                  <View style={styles.sender}>
-                    <Avatar />
+                  <View key={id} style={styles.sender}>
+                    <Avatar
+                      position="absolute"
+                      rounded
+                      // Web
+                      containerStyle={{
+                        bottom: -15,
+                        right: -5,
+                        position: "absolute",
+                      }}
+                      source={{ uri: data.photoURL }}
+                      bottom={-15}
+                      right={-5}
+                      size={30}
+                    />
                     <Text style={styles.sendText}>{data.message}</Text>
+                    <Text style={styles.sendName}>{data.displayName}</Text>
                   </View>
                 )
               )}
@@ -164,6 +188,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     marginBottom: 20,
     marginRight: 15,
+    borderRadius: 20,
     maxWidth: "80%",
     position: "relative",
   },
@@ -176,6 +201,12 @@ const styles = StyleSheet.create({
     margin: 15,
     maxWidth: "80%",
     position: "relative",
+  },
+  sendName: {
+    left: 10,
+    paddingRight: 10,
+    fontSize: 10,
+    color: "white",
   },
   footer: {
     flexDirection: "row",
@@ -197,5 +228,5 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   recieverText: {},
-  sendText: {},
+  sendText: { color: "white" },
 });
